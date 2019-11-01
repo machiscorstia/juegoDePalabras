@@ -13,3 +13,12 @@ Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 | C | Te llevará a los créditos.  |
 | S | Cierra el juego.            |
 | A | Te explica los controles.   |
+
+# Controles en juego
+| Tecla | Función                 |
+| - | --------------------------- |
+| 1 | Elegis la primera foto.     |
+| 2 | Elegis la segunda foto      |
+| 3 | Elegis la tercera foto.     |
+| 4 | Elegis la cuarta foto.      |
+| A | Te explica los controles.   |
