@@ -1,0 +1,12 @@
+import wollok.game.*
+import Elementos.*
+
+program Juego{
+		game.title("GWORD")
+		game.height(16)
+		game.width(20)
+		game.ground("fondo.png")
+		partida.establecerMenuInicial()
+		partida.establecerAccesoDeTeclado()
+		game.start()
+}
