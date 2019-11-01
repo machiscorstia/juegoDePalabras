@@ -7,9 +7,9 @@ El juego te mostrará cuatro fotos y una letra, de esas cuatro fotos una es la q
 Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 
 # Controles del menú
-| Tecla | Función |
-| --- | --- |
-|  J | Comienza el juego |
-|  C | Te llevará a los créditos. |
-|  S | Cierra el juego. |
-|  A | Te explica los controles. |
+| Tecla | Función                 |
+| - | --------------------------- |
+| J | Comienza el juego           |
+| C | Te llevará a los créditos.  |
+| S | Cierra el juego.            |
+| A | Te explica los controles.   |
