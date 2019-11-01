@@ -1,4 +1,5 @@
 import Elementos.*
+import wollok.lang.*
 
 object juego{
 	

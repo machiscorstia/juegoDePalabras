@@ -1,6 +1,5 @@
 import wollok.game.*
 
-
 object partida{
 	var salas = [menu, creditos, nivel]
 	var salaActual = 0
@@ -14,27 +13,33 @@ object partida{
 	
 	method verificarFin(){
 		if(salaActual != 0)
-			self.obtenerSala(salaActual).mostrarError(1)
+			self.obtenerSala(salaActual).errorSala(2)
 		else 
 			game.stop()
 	}
+	
+	method llamarAyudante(){ self.obtenerSala(salaActual).mostrarAyuda() }
+	
 	method establecerSala(numeroDeSala){
 		if(numeroDeSala == salaActual)
-			self.obtenerSala(salaActual).errorSala(2)
+			self.obtenerSala(salaActual).errorSala(3)
+
 		else if(numeroDeSala == 1 and salaActual == 2){
-			nivel.errorSala(0)
+			nivel.errorSala(1)
+			
 		}else{
-		self.obtenerSala(salaActual).eliminarElementos()
-		salaActual = numeroDeSala
-		self.obtenerSala(salaActual).dibujarElementos()
+			self.obtenerSala(salaActual).eliminarElementos()
+			salaActual = numeroDeSala
+			self.obtenerSala(salaActual).dibujarElementos()
 		}
 	}
 
 	method establecerAccesoDeTeclado(){
-		/* Botón Jugar */		keyboard.j().onPressDo({ self.establecerSala(2) })
 		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) })
 		/* Botón Creditos */	keyboard.c().onPressDo({ self.establecerSala(1) })
+		/* Botón Jugar */		keyboard.j().onPressDo({ self.establecerSala(2) })
 		/* Botón Salir */		keyboard.s().onPressDo({ self.verificarFin() })
+		/* Botón ayudante */	keyboard.a().onPressDo({ self.llamarAyudante() })
 	}
 }
 
@@ -60,7 +65,7 @@ object menu{
 	
 	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
 	
-	method mostrarAyuda(){ elementos.get(4).ayudaEnMenu() }
+	method mostrarAyuda(){ self.llamarAyudante().ayudaEnMenu() }
 }
 
 object creditos{
@@ -70,48 +75,99 @@ object creditos{
 		new Ayudante(1, 1)
 	]
 	
-	method dibujarElementos(){ 
-		elementos.forEach({ x => game.addVisualCharacter(x)})
-		game.say(elementos.get(1), "Apreta M para volver al menú!")
-	}
+	method dibujarElementos(){  elementos.forEach({ x => game.addVisualCharacter(x)}) }
 	
 	method eliminarElementos(){ elementos.forEach({ x => game.removeVisual(x)}) }
 	
 	method accionBotonVolver(){ partida.establecerSala(0) }
 	
-	method errorSala(numeroError){ elementos.get(1).mostrarError(numeroError) }
+	method llamarAyudante(){ return elementos.get(1) }
 	
-	method mostrarAyuda(){ elementos.get(1).ayudaEnCreditos() }
+	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
+	
+	method mostrarAyuda(){ self.llamarAyudante().ayudaEnCreditos() }
 }
 
 object nivel{
-	var elementos = [
+	var elementos = 
+	[
 		new Texto("txtConsigna.png", 5, 14),
 		new Letra(10, 12),
-		new Texto("so.png", 7, 8),
-		new Texto("so.png", 11, 8),
-		new Texto("so.png", 7, 4),
-		new Texto("so.png", 11, 4),
 		new Ayudante(1, 1)
 	]
-	var letras = ["b", "c", "v", "z"]
 	
-	var letraElegida
+	var objetos =
+	[
+		new Foto("so.png", 7, 8),
+		new Foto("so.png",11, 8),
+		new Foto("so.png",7, 4),
+		new Foto("so.png",11, 4)
+	]
 	
-	method establecerParametros(){
-		letraElegida = letras.anyOne()
-	}
+	var numeroLetraElegida
+	var property letraElegida
+	var objetoElegido
 	
-	method errorSala(numeroError){ elementos.get(6).mostrarError(numeroError) }
+	var letras = ["b", "v"]
+	var palabras = 
+	[
+		[1, 2, 3, 4, 5, 6], 
+		[7, 8, 9, 10, 11, 12]
+	]
 	
-	method letraElegida(){ return letraElegida }
+	method llamarAyudante(){ return elementos.get(2) }
+	
+	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
+	
+	method mostrarAyuda(){ self.llamarAyudante().ayudaEnJuego() }
 	
 	method dibujarElementos(){
-		self.establecerParametros()  
+		self.configurarObjetos()
+		objetos.forEach({ x => game.addVisualCharacter(x) })
 		elementos.forEach({ x => game.addVisualCharacter(x)})
 	}
 	
-	method eliminarElementos(){ elementos.forEach({ x => game.removeVisual(x)}) }
+	method eliminarElementos(){
+		self.establecerPalabras()
+		objetos.forEach({ x => game.removeVisual(x) x.restablecerImagen() })
+		elementos.forEach({ x => game.removeVisual(x)})
+	}
+	
+	method generarNumeroAleatorio(minimo, maximo){ return (minimo .. maximo).anyOne() }
+	
+	method seleccionarObjeto(numero){ return objetos.get(numero) }
+	
+	method pedirPalabra(){
+		var coleccion = palabras.anyOne()
+		var palabra = coleccion.anyOne()
+		palabras.forEach({ x => if(x == coleccion) x.remove(palabra)})
+		console.println(palabras)
+		return palabra
+	}
+	
+	method establecerPalabras(){
+		palabras.clear()
+		palabras.add([1, 2, 3, 4, 5, 6])
+		palabras.add([7, 8, 9, 10, 11, 12])
+	}
+	
+	method configurarObjetos(){
+		numeroLetraElegida = self.generarNumeroAleatorio(0, 1)
+		letraElegida = letras.get(numeroLetraElegida)
+		
+		objetoElegido = self.generarNumeroAleatorio(0, 3)
+		
+		var coleccionElegida = palabras.get(numeroLetraElegida)
+		var palabraElegida = coleccionElegida.anyOne()
+		
+		palabras.remove(coleccionElegida)
+		
+		self.seleccionarObjeto(objetoElegido).establecerImagen(palabraElegida)
+		
+		var objetosRestantes = objetos.filter({ x => x.id() != palabraElegida })
+		
+		objetosRestantes.forEach({ x => x.establecerImagen(self.pedirPalabra())})
+	}
 }
 
 class Letra{
@@ -125,16 +181,22 @@ class Letra{
 class Foto{
 	var property position
 	
-	var letra = 0
 	var rutaImagen
+	var property id = -1
 	
-	constructor(x, y){ position = game.at(x, y) }
+	constructor(_ruta, x, y){ 
+		rutaImagen = _ruta
+		position = game.at(x, y)
+	}
 	
-	method iamge(){ return rutaImagen }
+	method image(){ return rutaImagen }
 	
-	method establecerLetra(_letra){ letra = _letra}
+	method restablecerImagen(){ rutaImagen = "so.png" }
 	
-	method establecerFoto(texto){ rutaImagen = texto + ".png" }
+	method establecerImagen(numero){ 
+		rutaImagen = "Fotos/" + numero + ".png" console.println(rutaImagen)
+		id = numero
+	}
 }
 
 class Texto{
@@ -166,17 +228,25 @@ class Ayudante{
 	
 	var errores = 
 	[
-		"No podes ir a Creditos!",
-		"No podes salir del juego!",
-		"Ya estas en la sala!"
+		"No podes ir al Menú.",
+		"No podes ir a Creditos.",
+		"No podes salir del juego.",
+		"Ya estas en la sala."
 	]
+	
 	constructor(x, y){ position = game.at(x, y) }
 	
 	method image(){ return "ayudante.png" }
 	
-	method ayudaEnCreditos(){ return game.say(self, "Apreta M para volver al menu!") }
+	method ayudaEnCreditos(){ return game.say(self, "Apreta M para volver al menú.") }
 	
-	method ayudaEnMenu(){ return game.say(self, "(1) Jugar, (2) Creditos, (3) Salir") }
+	method ayudaEnJuego(){ return game.say(self, "Usa los números para elegir.") }
+	
+	method ayudaEnMenu(){ 
+		game.say(self, "Apreta J para jugar")
+		game.say(self, "Apreta C para ver los créditos")
+		game.say(self, "Apreta S para salir del juego")
+	}
 	
 	method mostrarError(numeroError){ return game.say(self, errores.get(numeroError)) }
 
