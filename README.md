@@ -22,4 +22,4 @@ Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 | 3 | Elegis la tercera foto.     |
 | 4 | Elegis la cuarta foto.      |
 | A | Te explica los controles.   |
-| A | Volves al menú de inicio   |
+| M | Volves al menú de inicio   |
