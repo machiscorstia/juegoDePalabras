@@ -9,9 +9,9 @@ Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 # Controles del menú
 | Tecla | Función                 |
 | - | --------------------------- |
-| J | Comienza el juego           |
-| C | Te llevará a los créditos.  |
-| S | Cierra el juego.            |
+| W | Mueves el selector hacia arriba |
+| S | Mueves el selector haca abajo  |
+| ENTER | Seleccionas la opción que elegiste  |
 | A | Te explica los controles.   |
 
 # Controles en juego
@@ -22,3 +22,4 @@ Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 | 3 | Elegis la tercera foto.     |
 | 4 | Elegis la cuarta foto.      |
 | A | Te explica los controles.   |
+| A | Volves al menú de inicio   |
