@@ -9,4 +9,5 @@ program Juego{
 		partida.establecerMenuInicial()
 		partida.establecerAccesoDeTeclado()
 		game.start()
+		keyboard.x().onPressDo({  game.sound("ost.mp3")})
 }

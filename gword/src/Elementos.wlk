@@ -9,6 +9,7 @@ object partida{
 	method establecerMenuInicial(){
 		menu.dibujarElementos()
 		menu.mostrarAyuda()
+		game.addVisual(selector) 
 	}
 	
 	method verificarFin(){
@@ -35,12 +36,81 @@ object partida{
 	}
 
 	method establecerAccesoDeTeclado(){
-		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) })
-		/* Botón Creditos */	keyboard.c().onPressDo({ self.establecerSala(1) })
-		/* Botón Jugar */		keyboard.j().onPressDo({ self.establecerSala(2) })
-		/* Botón Salir */		keyboard.s().onPressDo({ self.verificarFin() })
+		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) selector.restablecer() })
+		/* Botón Salir */		keyboard.s().onPressDo({ selector.moverAbajo() })
+		/* Botón Salir */		keyboard.w().onPressDo({ selector.moverArriba() })
 		/* Botón ayudante */	keyboard.a().onPressDo({ self.llamarAyudante() })
+		keyboard.enter().onPressDo({ selector.accionar() })
+		keyboard.num1().onPressDo({ selector.establecerPosicion(0) })
+		keyboard.num2().onPressDo({ selector.establecerPosicion(1) })
+		keyboard.num3().onPressDo({ selector.establecerPosicion(2) })
+		keyboard.num4().onPressDo({ selector.establecerPosicion(3) })
 	}
+}
+
+object selector{
+	var posiciones = 
+	[
+		[game.at(6, 5), game.at(6, 7), game.at(6, 9)],
+		[game.at(7, 8), game.at(11, 8), game.at(7, 4), game.at(11, 4)]
+	]
+	
+	var salaActual = 0
+	var posicionActual = 0
+	
+	var property position = posiciones.get(salaActual).get(0)
+	
+	method moverArriba(){
+		if(posicionActual == 2)
+			posicionActual = 0
+		else
+			posicionActual++;
+
+		self.actualizarPosicion()
+	}
+	
+	method moverAbajo(){
+		if(posicionActual == 0)
+			posicionActual = 2
+		else 
+			posicionActual--
+		self.actualizarPosicion()
+	}
+	
+	method establecerPosicion(numero){
+		posicionActual = numero
+		self.actualizarPosicion()
+	}
+	
+	method accionar(){
+		if(salaActual == 0){
+			if(posicionActual == 2){
+				partida.establecerSala(2)
+				salaActual = 1
+				game.removeVisual(self)
+				game.addVisual(self)
+				self.actualizarPosicion()
+			}
+			if(posicionActual == 1)
+				partida.establecerSala(1)
+			if(posicionActual == 0)
+				game.stop()
+		}
+	}
+	
+	method restablecer(){ 
+		posicionActual = 0
+		salaActual = 0
+		self.actualizarPosicion()
+	}
+	
+	method actualizarPosicion(){ 
+		var salaPosicion = posiciones.get(salaActual)
+		position = salaPosicion.get(posicionActual)
+		console.println(position)
+	}
+	
+	method image(){ return "flecha.png" }
 }
 
 object menu{
@@ -105,8 +175,9 @@ object nivel{
 	]
 	
 	var numeroLetraElegida
-	var property letraElegida
 	var objetoElegido
+	var property letraElegida
+	var puntaje = 0
 	
 	var letras = ["b", "v"]
 	var palabras = 
@@ -121,6 +192,11 @@ object nivel{
 	
 	method mostrarAyuda(){ self.llamarAyudante().ayudaEnJuego() }
 	
+	method generarNumeroAleatorio(minimo, maximo){ return (minimo .. maximo).anyOne() }
+	
+	method seleccionarObjeto(numero){ return objetos.get(numero) }
+	
+	
 	method dibujarElementos(){
 		self.configurarObjetos()
 		objetos.forEach({ x => game.addVisualCharacter(x) })
@@ -132,10 +208,6 @@ object nivel{
 		objetos.forEach({ x => game.removeVisual(x) x.restablecerImagen() })
 		elementos.forEach({ x => game.removeVisual(x)})
 	}
-	
-	method generarNumeroAleatorio(minimo, maximo){ return (minimo .. maximo).anyOne() }
-	
-	method seleccionarObjeto(numero){ return objetos.get(numero) }
 	
 	method pedirPalabra(){
 		var coleccion = palabras.anyOne()
@@ -242,12 +314,10 @@ class Ayudante{
 	
 	method ayudaEnJuego(){ return game.say(self, "Usa los números para elegir.") }
 	
-	method ayudaEnMenu(){ 
-		game.say(self, "Apreta J para jugar")
-		game.say(self, "Apreta C para ver los créditos")
-		game.say(self, "Apreta S para salir del juego")
-	}
-	
 	method mostrarError(numeroError){ return game.say(self, errores.get(numeroError)) }
-
+	
+	method ayudaEnMenu(){ 
+		game.say(self, "Usa W y S para mover la flecha")
+		game.say(self, "Aprieta ENTER para elegir")
+	}
 }
