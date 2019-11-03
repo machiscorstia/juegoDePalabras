@@ -11,8 +11,8 @@ Ejemplo: V, elegis Velociraptor y te suma cierto puntaje.
 | - | --------------------------- |
 | W | Mueves el selector hacia arriba |
 | S | Mueves el selector haca abajo  |
-| ENTER | Seleccionas la opción que elegiste  |
 | A | Te explica los controles.   |
+| ENTER | Seleccionas la opción que elegiste  |
 
 # Controles en juego
 | Tecla | Función                 |
