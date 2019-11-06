@@ -2,7 +2,9 @@ import wollok.game.*
 
 object partida{
 	var salas = [menu, creditos, nivel]
-	var salaActual = 0
+	var property salaActual = 0
+	
+	method obtenerSalaActual(){ return salaActual }
 	
 	method obtenerSala(numeroDeSala){ return salas.get(numeroDeSala) }
 	
@@ -36,7 +38,7 @@ object partida{
 	}
 
 	method establecerAccesoDeTeclado(){
-		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) selector.restablecer() })
+		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) })
 		/* Botón Salir */		keyboard.s().onPressDo({ selector.moverAbajo() })
 		/* Botón Salir */		keyboard.w().onPressDo({ selector.moverArriba() })
 		/* Botón ayudante */	keyboard.a().onPressDo({ self.llamarAyudante() })
@@ -52,59 +54,57 @@ object selector{
 	var posiciones = 
 	[
 		[game.at(6, 5), game.at(6, 7), game.at(6, 9)],
+		game.at(-2,-2),
 		[game.at(7, 8), game.at(11, 8), game.at(7, 4), game.at(11, 4)]
 	]
 	
-	var salaActual = 0
 	var posicionActual = 0
-	
-	var property position = posiciones.get(salaActual).get(0)
+	var salaActual = 0
+	var property position = posiciones.get(0).get(0)
 	
 	method moverArriba(){
-		if(posicionActual == 2)
-			posicionActual = 0
-		else
-			posicionActual++;
-
-		self.actualizarPosicion()
-	}
-	
-	method moverAbajo(){
-		if(posicionActual == 0)
-			posicionActual = 2
-		else 
-			posicionActual--
-		self.actualizarPosicion()
-	}
-	
-	method establecerPosicion(numero){
-		posicionActual = numero
-		self.actualizarPosicion()
-	}
-	
-	method accionar(){
-		if(salaActual == 0){
-			if(posicionActual == 2){
-				partida.establecerSala(2)
-				salaActual = 1
-				game.removeVisual(self)
-				game.addVisual(self)
-				self.actualizarPosicion()
-			}
-			if(posicionActual == 1)
-				partida.establecerSala(1)
-			if(posicionActual == 0)
-				game.stop()
+		if(salaActual != 1){
+			if(posicionActual == 2)
+				posicionActual = 0
+			else
+				posicionActual++;
+			self.actualizarPosicion()
 		}
 	}
 	
-	method restablecer(){ 
-		posicionActual = 0
-		salaActual = 0
-		self.actualizarPosicion()
+	method moverAbajo(){
+		if(salaActual != 1){
+			if(posicionActual == 0)
+				posicionActual = 2
+			else 
+				posicionActual--
+			self.actualizarPosicion()
+		}
 	}
 	
-	method actualizarPosicion(){ 
+	method accionar(){
+		if(partida.obtenerSalaActual() == 0){
+			if(posicionActual == 0)
+				game.stop()
+			if(posicionActual == 1){
+				partida.establecerSala(1)
+				salaActual = 1
+			}
+			if(posicionActual == 2){
+				partida.establecerSala(2)
+				salaActual = 2
+				self.reiniciar()
+			}
+			self.actualizarPosicion()
+		}
+	}
+	
+	method reiniciar(){
+		game.removeVisual(self)
+		game.addVisual(self)
+	}
+	
+	method actualizarPosicion(){
 		var salaPosicion = posiciones.get(salaActual)
 		position = salaPosicion.get(posicionActual)
 		console.println(position)
@@ -133,7 +133,7 @@ object menu{
 	
 	method llamarAyudante(){ return elementos.get(4) }
 	
-	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
+	method errorSala(numeroError){ return self.llamarAyudante().mostrarError(numeroError) }
 	
 	method mostrarAyuda(){ self.llamarAyudante().ayudaEnMenu() }
 }
