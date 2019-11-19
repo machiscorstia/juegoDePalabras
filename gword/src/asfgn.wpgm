@@ -1,0 +1,13 @@
+import wollok.game.*
+import objects.*
+
+program Juego{
+		game.title("GWORD")
+		game.height(16)
+		game.width(20)
+		game.ground("fondo.png")
+		partida.establecerMenuInicial()
+		partida.establecerAccesoDeTeclado()
+		game.start()
+		keyboard.x().onPressDo({  game.sound("ost.mp3")})
+}

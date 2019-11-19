@@ -295,8 +295,8 @@ class Boton{
 	method image(){ return rutaImagen }
 }
 
-class Ayudante{
-	var property position
+object ayudante{
+	var property position = game.at(1, 1)
 	
 	var errores = 
 	[
@@ -305,8 +305,6 @@ class Ayudante{
 		"No podes salir del juego.",
 		"Ya estas en la sala."
 	]
-	
-	constructor(x, y){ position = game.at(x, y) }
 	
 	method image(){ return "ayudante.png" }
 	
