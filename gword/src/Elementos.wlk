@@ -2,16 +2,18 @@ import wollok.game.*
 
 object partida{
 	var salas = [menu, creditos, nivel]
-	var property salaActual = 0
-	
-	method obtenerSalaActual(){ return salaActual }
+	var salaActual = 0
 	
 	method obtenerSala(numeroDeSala){ return salas.get(numeroDeSala) }
 	
+	method obtenerSalaActual(){ return salaActual }
+	
 	method establecerMenuInicial(){
 		menu.dibujarElementos()
-		menu.mostrarAyuda()
-		game.addVisual(selector) 
+		//game.addVisual(puntaje)
+		game.addVisual(selector)
+		game.addVisual(ayudante)
+		ayudante.mostrarAyuda(0) 
 	}
 	
 	method verificarFin(){
@@ -20,8 +22,6 @@ object partida{
 		else 
 			game.stop()
 	}
-	
-	method llamarAyudante(){ self.obtenerSala(salaActual).mostrarAyuda() }
 	
 	method establecerSala(numeroDeSala){
 		if(numeroDeSala == salaActual)
@@ -38,10 +38,10 @@ object partida{
 	}
 
 	method establecerAccesoDeTeclado(){
-		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) })
+		/* Botón Volver */		keyboard.m().onPressDo({ self.establecerSala(0) selector.restablecer() })
 		/* Botón Salir */		keyboard.s().onPressDo({ selector.moverAbajo() })
 		/* Botón Salir */		keyboard.w().onPressDo({ selector.moverArriba() })
-		/* Botón ayudante */	keyboard.a().onPressDo({ self.llamarAyudante() })
+		/* Botón ayudante */	keyboard.a().onPressDo({ ayudante.mostrarAyuda(salaActual) })
 		keyboard.enter().onPressDo({ selector.accionar() })
 		keyboard.num1().onPressDo({ selector.establecerPosicion(0) })
 		keyboard.num2().onPressDo({ selector.establecerPosicion(1) })
@@ -54,57 +54,64 @@ object selector{
 	var posiciones = 
 	[
 		[game.at(6, 5), game.at(6, 7), game.at(6, 9)],
-		game.at(-2,-2),
 		[game.at(7, 8), game.at(11, 8), game.at(7, 4), game.at(11, 4)]
 	]
 	
-	var posicionActual = 0
 	var salaActual = 0
-	var property position = posiciones.get(0).get(0)
+	var posicionActual = 0
+	
+	var property position = posiciones.get(salaActual).get(0)
 	
 	method moverArriba(){
-		if(salaActual != 1){
-			if(posicionActual == 2)
-				posicionActual = 0
-			else
-				posicionActual++;
-			self.actualizarPosicion()
-		}
+		if(posicionActual == 2)
+			posicionActual = 0
+		else
+			posicionActual++;
+
+		self.actualizarPosicion()
 	}
 	
 	method moverAbajo(){
-		if(salaActual != 1){
-			if(posicionActual == 0)
-				posicionActual = 2
-			else 
-				posicionActual--
-			self.actualizarPosicion()
-		}
+		if(posicionActual == 0)
+			posicionActual = 2
+		else 
+			posicionActual--
+		self.actualizarPosicion()
+	}
+	
+	method establecerPosicion(numero){
+		posicionActual = numero
+		self.actualizarPosicion()
 	}
 	
 	method accionar(){
-		if(partida.obtenerSalaActual() == 0){
-			if(posicionActual == 0)
-				game.stop()
-			if(posicionActual == 1){
-				partida.establecerSala(1)
-				salaActual = 1
-			}
+		if(salaActual == 0){
 			if(posicionActual == 2){
 				partida.establecerSala(2)
-				salaActual = 2
-				self.reiniciar()
+				salaActual = 1
+				game.removeVisual(self)
+				game.addVisual(self)
+				posicionActual = 0
+				self.actualizarPosicion()
 			}
-			self.actualizarPosicion()
+			if(posicionActual == 1)
+				partida.establecerSala(1)
+			if(posicionActual == 0 and partida.obtenerSalaActual() == 0)
+				game.stop()
+		}
+		if(salaActual == 1){
+			if(posicionActual == 0)
+				nivel.verificarObjeto(0)
 		}
 	}
 	
-	method reiniciar(){
-		game.removeVisual(self)
-		game.addVisual(self)
+	method restablecer(){ 
+		posicionActual = 0
+		salaActual = 0
+		self.actualizarPosicion()
 	}
 	
-	method actualizarPosicion(){
+	method actualizarPosicion(){ 
 		var salaPosicion = posiciones.get(salaActual)
 		position = salaPosicion.get(posicionActual)
 		console.println(position)
@@ -119,11 +126,10 @@ object menu{
 		new Boton("Menu/btnJugar.png", game.width()/2.5, 9), 
 		new Boton("Menu/btnCreditos.png", game.width()/2.5, 7),
 		new Boton("Menu/btnSalir.png", game.width()/2.5, 5),
-		new Texto("Menu/txtTitulo.png", 7, 12),
-		new Ayudante(1, 1)
+		new Texto("Menu/txtTitulo.png", 7, 12)
 	]
 	
-	method dibujarElementos(){ elementos.forEach({ x => game.addVisualCharacter(x)}) }
+	method dibujarElementos(){ elementos.forEach({ x => game.addVisual(x)}) }
 	
 	method eliminarElementos(){ elementos.forEach({ x => game.removeVisual(x) }) }
 	
@@ -131,21 +137,14 @@ object menu{
 	
 	method botonJugar(){ return elementos.get(0) }
 	
-	method llamarAyudante(){ return elementos.get(4) }
+	method errorSala(numeroError){ return ayudante.mostrarError(numeroError) }
 	
-	method errorSala(numeroError){ return self.llamarAyudante().mostrarError(numeroError) }
-	
-	method mostrarAyuda(){ self.llamarAyudante().ayudaEnMenu() }
 }
 
 object creditos{
-	var elementos = 
-	[
-		new Texto("Creditos/txtCreditos.png", 7, 5), 
-		new Ayudante(1, 1)
-	]
+	var elementos = [new Texto("Creditos/txtCreditos.png", 7, 5)]
 	
-	method dibujarElementos(){  elementos.forEach({ x => game.addVisualCharacter(x)}) }
+	method dibujarElementos(){  elementos.forEach({ x => game.addVisual(x)}) }
 	
 	method eliminarElementos(){ elementos.forEach({ x => game.removeVisual(x)}) }
 	
@@ -153,17 +152,14 @@ object creditos{
 	
 	method llamarAyudante(){ return elementos.get(1) }
 	
-	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
-	
-	method mostrarAyuda(){ self.llamarAyudante().ayudaEnCreditos() }
+	method errorSala(numeroError){ return ayudante.mostrarError(numeroError) }
 }
 
 object nivel{
 	var elementos = 
 	[
 		new Texto("txtConsigna.png", 5, 14),
-		new Letra(10, 12),
-		new Ayudante(1, 1)
+		new Letra(10, 12)
 	]
 	
 	var objetos =
@@ -177,7 +173,7 @@ object nivel{
 	var numeroLetraElegida
 	var objetoElegido
 	var property letraElegida
-	var puntaje = 0
+	
 	
 	var letras = ["b", "v"]
 	var palabras = 
@@ -186,21 +182,34 @@ object nivel{
 		[7, 8, 9, 10, 11, 12]
 	]
 	
+	method verificarObjeto(numero){
+		if(numero == objetoElegido){
+			console.println(numero + objetoElegido)
+			puntaje.sumar()
+			puntaje.mostrar()
+			self.reiniciar()
+		}else
+			self.errorSala(4)
+			
+	}
+	
+	method reiniciar(){
+		self.eliminarElementos()
+		self.dibujarElementos()	
+	}
+	
 	method llamarAyudante(){ return elementos.get(2) }
 	
-	method errorSala(numeroError){ self.llamarAyudante().mostrarError(numeroError) }
-	
-	method mostrarAyuda(){ self.llamarAyudante().ayudaEnJuego() }
+	method errorSala(numeroError){ return ayudante.mostrarError(numeroError) }
 	
 	method generarNumeroAleatorio(minimo, maximo){ return (minimo .. maximo).anyOne() }
 	
 	method seleccionarObjeto(numero){ return objetos.get(numero) }
 	
-	
 	method dibujarElementos(){
 		self.configurarObjetos()
-		objetos.forEach({ x => game.addVisualCharacter(x) })
-		elementos.forEach({ x => game.addVisualCharacter(x)})
+		objetos.forEach({ x => game.addVisual(x) })
+		elementos.forEach({ x => game.addVisual(x)})
 	}
 	
 	method eliminarElementos(){
@@ -298,24 +307,44 @@ class Boton{
 object ayudante{
 	var property position = game.at(1, 1)
 	
+	var textos =
+	[
+		"Usa W y S para mover la flecha..",
+		"Apretá ENTER para elegir la opción.",
+		"Apretá M para volver al menú.",
+		"Usa los numeros para seleccionar."
+	]
+	
 	var errores = 
 	[
 		"No podes ir al Menú.",
 		"No podes ir a Creditos.",
 		"No podes salir del juego.",
-		"Ya estas en la sala."
+		"Ya estas en la sala.",
+		"Objeto equivocado."
 	]
 	
-	method image(){ return "ayudante.png" }
-	
-	method ayudaEnCreditos(){ return game.say(self, "Apreta M para volver al menú.") }
-	
-	method ayudaEnJuego(){ return game.say(self, "Usa los números para elegir.") }
+	method mostrarAyuda(numero){ 
+		if(numero == 0){
+			game.say(self, textos.get(0))
+			game.say(self, textos.get(1))
+		}else
+			game.say(self, textos.get(numero+1))
+	}
 	
 	method mostrarError(numeroError){ return game.say(self, errores.get(numeroError)) }
 	
-	method ayudaEnMenu(){ 
-		game.say(self, "Usa W y S para mover la flecha")
-		game.say(self, "Aprieta ENTER para elegir")
-	}
+	method image(){ return "ayudante.png" }
+	
+}
+
+object puntaje{
+	var puntos = 0
+	var property position = game.at(2, 9)
+
+	method restablecer(){ puntos = 0 }
+	
+	method mostrar(){ game.say(self, "Acertado") }
+	
+	method sumar(){ puntos ++ }
 }
